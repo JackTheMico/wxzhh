@@ -33,6 +33,37 @@
    - **底层依赖解耦**：九键虎专属词典与万象拼音庞大词典完全解耦，生成的 `9jianhu.table.bin` 从 254MB 剧减至 4.8MB，彻底根治手机端因内存不足导致的编译闪退（`Rime deploy failed`）与 OOM 报错。
    - **编译棱镜剪枝**：剪除冗余的全局代数派生规则，`9jianhu.prism.bin` 体积从 13.1MB 缩减至 1.9MB（瘦身超 85%），重新部署 2 秒内极速完成。
    - **Android 路径兼容**：全面统一词典引用路径为 `tiger_dicts/`，完美适配 Android FAT32/FUSE 文件系统，彻底解决一简字丢失与部署失败问题。
+
+### 部署与安装指引（手机/电脑端）
+
+#### 1. 目标目录位置
+- **Android（同文输入法 / Trime）**：`/sdcard/rime/`（或应用用户数据目录 `rime/`）
+- **Linux（Fcitx5-Rime）**：`~/.local/share/fcitx5/rime/`
+- **Windows（小狼毫 / Weasel）**：`%APPDATA%\Rime\`
+- **macOS（鼠须管 / Squirrel）**：`~/Library/Rime/`
+
+#### 2. 需要部署/更新的文件清单
+升级或安装新版九键虎，将本仓库对应文件复制到上述目标 Rime 目录下：
+
+| 本仓库源文件路径 | 复制到目标目录位置 | 说明 |
+| :--- | :--- | :--- |
+| `9jianhu.schema.yaml` | `<rime>/9jianhu.schema.yaml` | **【核心方案】** 挂载流打滤镜、6码顶屏与代数规则剪枝 |
+| `9jianhu.dict.yaml` | `<rime>/9jianhu.dict.yaml` | **【核心词典】** 词典依赖配置（统一 tiger_dicts/ 路径） |
+| `lua/9jianhu_chengyu.lua` | `<rime>/lua/9jianhu_chengyu.lua` | **【流打引擎】** 渐进式流打与二/三/四字词动态置顶滤镜 |
+| `lua/data/9jianhu_words.tsv` | `<rime>/lua/data/9jianhu_words.tsv` | **【流打索引】** 预计算高频词索引表（1.6MB 瘦身版） |
+| `lua/data/9jianhu_words_data.lua` | `<rime>/lua/data/9jianhu_words_data.lua` | **【辅助模块】** 词表数据定义 |
+| `tiger_dicts/`（目录） | `<rime>/tiger_dicts/` | **【底层字词表】** 虎码单字与简词基础库（环境已有可跳过） |
+
+> 💡 **提示**：若已有万象虎环境，只需覆盖前 5 个文件即可完成九键虎现代流打升级。
+
+#### 3. 启用方案与重新部署
+1. **启用方案**：在 `<rime>/default.custom.yaml` 的 `schema_list` 中添加：
+   ```yaml
+   patch:
+     schema_list/+:
+       - schema: 9jianhu
+   ```
+2. **重新部署**：在输入法中点击 **“重新部署 / Deploy”**，约 1~2 秒即可完成编译并生效。
 ---
 
 ## 核心交互

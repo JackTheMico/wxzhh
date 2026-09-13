@@ -1,0 +1,14 @@
+# Rime dictionary
+# encoding: utf-8
+
+---
+name: 9jianhu
+version: "0.1"
+sort: by_weight
+use_preset_vocabulary: false
+
+import_tables:
+  - cn_dicts_tiger/8105
+  - cn_dicts_tiger/tigress/tigress_ci
+  - cn_dicts_tiger/tigress_ci
+...

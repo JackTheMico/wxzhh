@@ -34,13 +34,10 @@
    - **编译棱镜剪枝**：剪除冗余的全局代数派生规则，`9jianhu.prism.bin` 体积从 13.1MB 缩减至 1.9MB（瘦身超 85%），重新部署 2 秒内极速完成。
    - **Android 路径兼容**：全面统一词典引用路径为 `tiger_dicts/`，完美适配 Android FAT32/FUSE 文件系统，彻底解决一简字丢失与部署失败问题。
 
-### 部署与安装指引（手机/电脑端）
+### 部署与安装指引（手机端）
 
 #### 1. 目标目录位置
 - **Android（同文输入法 / Trime）**：`/sdcard/rime/`（或应用用户数据目录 `rime/`）
-- **Linux（Fcitx5-Rime）**：`~/.local/share/fcitx5/rime/`
-- **Windows（小狼毫 / Weasel）**：`%APPDATA%\Rime\`
-- **macOS（鼠须管 / Squirrel）**：`~/Library/Rime/`
 
 #### 2. 需要部署/更新的文件清单
 升级或安装新版九键虎，将本仓库对应文件复制到上述目标 Rime 目录下：

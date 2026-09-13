@@ -146,7 +146,71 @@ function M.func(input, env)
         return
     end
 
-    -- 4 击、5 击、6 击模式：强置顶注入流打二字词、三字词、成语
+    -- 5 击模式：精准单字尊享保护
+    -- 若原生首候选为精准单字（如“呢”），优先置顶，成语/流打词作为后续扩展紧随其后
+    if input_len == 5 and matched_words then
+        local first_cand = nil
+        local has_checked_first = false
+        local single_char_cand = nil
+
+        for cand in input:iter() do
+            if not has_checked_first then
+                has_checked_first = true
+                local text = cand.text
+                local is_single = false
+                if text and #text > 0 then
+                    if utf8 and utf8.len then
+                        local ok, l = pcall(utf8.len, text)
+                        if ok and l then is_single = (l == 1) end
+                    else
+                        local b = string.byte(text, 1)
+                        local char_len = 1
+                        if b >= 0xF0 then char_len = 4
+                        elseif b >= 0xE0 then char_len = 3
+                        elseif b >= 0xC0 then char_len = 2
+                        end
+                        is_single = (#text == char_len)
+                    end
+                end
+
+                if is_single then
+                    -- 原生首选是单字：单字第 1 候选置顶！
+                    yield(cand)
+                    yielded_texts[cand.text] = true
+                    -- 紧随其后注入流打词/成语（第 2~5 位）
+                    for i, word in ipairs(matched_words) do
+                        if i > 5 then break end
+                        if not yielded_texts[word] then
+                            local word_cand = Candidate("phrase", 0, input_len, word, "")
+                            word_cand.quality = 90 - i
+                            yield(word_cand)
+                            yielded_texts[word] = true
+                        end
+                    end
+                else
+                    -- 原生首选不是单字（如多字词）：成语置顶
+                    for i, word in ipairs(matched_words) do
+                        if i > 5 then break end
+                        local word_cand = Candidate("phrase", 0, input_len, word, "")
+                        word_cand.quality = 1000 - i
+                        yield(word_cand)
+                        yielded_texts[word] = true
+                    end
+                    if not yielded_texts[cand.text] then
+                        yield(cand)
+                        yielded_texts[cand.text] = true
+                    end
+                end
+            else
+                if not cand.text or not yielded_texts[cand.text] then
+                    yield(cand)
+                end
+            end
+        end
+        return
+    end
+
+    -- 4 击及其他模式：强置顶注入流打二字词、三字词、成语
     if matched_words then
         for i, word in ipairs(matched_words) do
             if i > 5 then break end
